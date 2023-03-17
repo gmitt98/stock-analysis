@@ -20,6 +20,7 @@ Sub StockStats()
         Dim rowToWrite As Long
         Dim volume As Double
         volume = 0
+        
         'Declare the variables I'm using to keep track of the extremes for the 3 row summary table and initialize them to start each worksheet over
         Dim maxPercentStock As String
         maxPercentStock = ""
@@ -53,15 +54,30 @@ Sub StockStats()
         'Iterate through the rows and add up our stats
         For i = 2 To lastRow + 1
             'Check if the row we are on is the same as the stock we expect it to be, and if it changed, reset volume and capture stuff
-            'Because this is the end of this stock's range, we calculate the stats and write it out
+            'Because this is the end of this stock's range, we calculate the stats and write it out, changing the cell number format as needed
             If ws.Cells(i, 1).Value <> stock Then
                 endPrice = ws.Cells(i - 1, 6).Value
                 yearDelta = endPrice - startPrice
                 percentDelta = yearDelta / startPrice
                 ws.Cells(rowToWrite, 9).Value = stock
                 ws.Cells(rowToWrite, 10).Value = yearDelta
+                ws.Cells(rowToWrite, 10).NumberFormat = "0"
+                
+                'This If statement block changes the cell color based on the value contained, with red for negative and green for postiive
+                If yearDelta < 0 Then
+                    ws.Cells(rowToWrite, 10).Interior.ColorIndex = 3
+                ElseIf yearDelta > 0 Then
+                    ws.Cells(rowToWrite, 10).Interior.ColorIndex = 4
+                Else
+                    ws.Cells(rowToWrite, 10).Interior.ColorIndex = xlNone
+                End If
+                
+                'Back to writing out out results now
                 ws.Cells(rowToWrite, 11).Value = percentDelta
+                ws.Cells(rowToWrite, 11).NumberFormat = "0.00%"
                 ws.Cells(rowToWrite, 12).Value = volume
+                ws.Cells(rowToWrite, 12).NumberFormat = "0"
+                
                 'check against current greatest percent increase, decrease, and greatest volume seen so far
                 If percentDelta > maxPercentValue Then
                     maxPercentValue = percentDelta
@@ -75,7 +91,8 @@ Sub StockStats()
                     maxVolumeValue = volume
                     maxVolumeStock = stock
                 End If
-                'now we get the new stock ticker value and new start price and reset volume
+                
+                'Now we get the new stock ticker value and new start price and reset volume
                 startPrice = ws.Cells(i, 3).Value
                 stock = ws.Cells(i, 1).Value
                 volume = 0
@@ -86,15 +103,17 @@ Sub StockStats()
             
         Next i
         
-    'Now we write the max values out in the small summary table
+    'Now we write the max values out in the small summary table, and change their number format
     ws.Cells(2, 16).Value = maxPercentStock
     ws.Cells(2, 17).Value = maxPercentValue
+    ws.Cells(2, 17).NumberFormat = "0.00%"
     ws.Cells(3, 16).Value = minPercentStock
     ws.Cells(3, 17).Value = minPercentValue
+    ws.Cells(3, 17).NumberFormat = "0.00%"
     ws.Cells(4, 16).Value = maxVolumeStock
     ws.Cells(4, 17).Value = maxVolumeValue
+    ws.Cells(4, 17).NumberFormat = "0"
     
     Next ws
     
 End Sub
-
