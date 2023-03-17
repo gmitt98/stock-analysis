@@ -1,0 +1,65 @@
+'this still needs an update to convert the cells to the correct format, i.e. percentage, dollar, etc
+'it also needs the second small table added
+
+Sub StockStats()
+
+    Dim ws As Worksheet
+    
+    'Loop that does all the calculations on each worksheet
+    For Each ws In ThisWorkbook.Worksheets
+    
+        ' Find the last row containing a stock price
+        Dim lastRow As Long
+        lastRow = ws.Cells(Rows.count, "A").End(xlUp).Row
+        
+        'Declare the variables I need to use and initialize the stock var and start price so that each sheet starts clean
+        Dim stock As String
+        stock = ws.Cells(2, 1).Value
+        Dim startPrice As Double
+        startPrice = ws.Cells(2, 3)
+        Dim endPrice As Double
+        Dim yearDelta As Double
+        Dim percentDelta As Double
+        Dim rowToWrite As Long
+        Dim volume As Double
+        volume = 0
+
+        
+        'Write the headers for my output
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        
+        'Set the first row we're going to write the output of stocks into which goes under my headers
+        rowToWrite = 2
+        
+        'Iterate through the rows and add up our stats
+        For i = 2 To lastRow + 1
+            'Check if the row we are on is the same as the stock we expect it to be, and if it changed, reset volume and capture stuff
+            'Because this is the end of this stock's range, we calculate the stats and write it out
+            If ws.Cells(i, 1).Value <> stock Then
+                endPrice = ws.Cells(i - 1, 6).Value
+                yearDelta = endPrice - startPrice
+                percentDelta = yearDelta / startPrice
+                ws.Cells(rowToWrite, 9).Value = stock
+                ws.Cells(rowToWrite, 10).Value = yearDelta
+                ws.Cells(rowToWrite, 11).Value = percentDelta
+                ws.Cells(rowToWrite, 12).Value = volume
+                'now we get the new stock ticker value and new start price and reset volume
+                startPrice = ws.Cells(i, 3).Value
+                stock = ws.Cells(i, 1).Value
+                volume = 0
+                rowToWrite = rowToWrite + 1
+            End If
+            'Stock ticker hasn't changed, so we just add up the volume and move on
+            volume = volume + ws.Cells(i, 7).Value
+            
+        Next i
+        
+ 
+        
+        
+    Next ws
+    
+End Sub
