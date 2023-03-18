@@ -62,7 +62,7 @@ Sub StockStats()
                 percentDelta = yearDelta / startPrice
                 ws.Cells(rowToWrite, 9).Value = stock
                 ws.Cells(rowToWrite, 10).Value = yearDelta
-                ws.Cells(rowToWrite, 10).NumberFormat = "0.."
+                ws.Cells(rowToWrite, 10).NumberFormat = "0.00"
                 
                 'This If statement block changes the cell color based on the value contained, with red for negative and green for postiive
                 If yearDelta < 0 Then
